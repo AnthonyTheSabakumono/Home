@@ -9,7 +9,7 @@
     }
   },
 
-  "questions": [
+  "grammar": [
     { "id": "gr-001", "level": "B2", "topic": "relative-clauses",
       "q": "She was the only student in the class _____ had read the entire book.",
       "opts": ["A) which","B) who","C) whose","D) whom"], "ans": "B" },
