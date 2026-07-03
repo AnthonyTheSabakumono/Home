@@ -199,13 +199,8 @@
   .submit-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
   .answered-status { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-dim); font-family: 'DM Mono', monospace; }
 
-  /* ── RESULTS PAGE ── */
-  .results-page {
-    display: none;
-    min-height: 100vh;
-    padding: 48px 24px 80px;
-  }
-  .results { max-width: 760px; margin: 0 auto; }
+  /* ── RESULTS ── */
+  .results { max-width: 760px; margin: 0 auto; padding: 0 24px 80px; display: none; }
 
   .result-hero {
     text-align: center; padding: 52px 24px 40px;
@@ -505,51 +500,49 @@
   <div class="answered-status" id="answered-status">Бүх асуултанд хариулсан эсэхээ нягтлаарай!</div>
 </div>
 
-</div><!-- /main-content -->
+<!-- RESULTS -->
+<div class="results" id="results">
 
-<!-- RESULTS PAGE (separate screen, shown only after submit) -->
-<div class="results-page" id="results-page">
-  <div class="results" id="results">
-
-    <!-- Score hero -->
-    <div class="result-hero">
-      <div class="result-tier-badge" id="res-tier-badge">
-        <span class="tier-dot"></span>
-        <span id="res-tier-label">—</span>
-      </div>
-      <div class="score-ring-wrap">
-        <div class="score-ring"></div>
-        <div class="result-score-big" id="res-scaled">—</div>
-      </div>
-      <div class="result-score-label" id="res-score-label">Зөв хариултын хувь</div>
-      <div class="result-band" id="res-band"></div>
-      <div class="result-raw" id="res-raw"></div>
+  <!-- Score hero -->
+  <div class="result-hero">
+    <div class="result-tier-badge" id="res-tier-badge">
+      <span class="tier-dot"></span>
+      <span id="res-tier-label">—</span>
     </div>
-
-    <!-- Level ladder -->
-    <div class="ladder-section">
-      <div class="breakdown-label">Түвшингийн шаталбар</div>
-      <div class="ladder-track" id="ladder-track"></div>
-      <div class="ladder-bar-track"><div class="ladder-bar-fill" id="ladder-bar"></div></div>
+    <div class="score-ring-wrap">
+      <div class="score-ring"></div>
+      <div class="result-score-big" id="res-scaled">—</div>
     </div>
-
-    <!-- Advice -->
-    <div class="advice-card" id="advice-card">
-      <div class="advice-title">Anthony's Analysis</div>
-      <div class="advice-text" id="res-advice"></div>
-    </div>
-
-    <!-- Actions -->
-    <div class="result-share">
-      <button class="share-btn" onclick="copyScore()">
-        <span id="copy-icon">📋</span> Үр дүн хуулах
-      </button>
-      <button class="share-btn secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Дээш</button>
-    </div>
-    <button class="reset-btn" onclick="resetTest()">↺ Ахин өгөх — шинэ асуулттай</button>
-
+    <div class="result-score-label" id="res-score-label">Зөв хариултын хувь</div>
+    <div class="result-band" id="res-band"></div>
+    <div class="result-raw" id="res-raw"></div>
   </div>
+
+  <!-- Level ladder -->
+  <div class="ladder-section">
+    <div class="breakdown-label">Түвшингийн шаталбар</div>
+    <div class="ladder-track" id="ladder-track"></div>
+    <div class="ladder-bar-track"><div class="ladder-bar-fill" id="ladder-bar"></div></div>
+  </div>
+
+  <!-- Advice -->
+  <div class="advice-card" id="advice-card">
+    <div class="advice-title">Anthony's Analysis</div>
+    <div class="advice-text" id="res-advice"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="result-share">
+    <button class="share-btn" onclick="copyScore()">
+      <span id="copy-icon">📋</span> Үр дүн хуулах
+    </button>
+    <button class="share-btn secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Дээш</button>
+  </div>
+  <button class="reset-btn" onclick="resetTest()">↺ Ахин өгөх — шинэ асуулттай</button>
+
 </div>
+
+</div><!-- /main-content -->
 
 <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
@@ -778,11 +771,18 @@ function submitTest() {
   submitted = true;
   clearInterval(timerInterval);
 
-  // Score silently — do NOT reveal which answers were right/wrong on the
-  // question cards themselves. Just tally the count for the results page.
   let correctCount = 0;
-  Object.values(answers).forEach(data => {
-    if (data.chosen === data.correct) correctCount++;
+  Object.entries(answers).forEach(([num, data]) => {
+    const card = document.getElementById(`card-${num}`);
+    card.querySelectorAll('.opt-btn').forEach((btn, i) => {
+      if (i === data.correct) btn.classList.add('reveal-correct');
+      else if (i === data.chosen) btn.classList.add('reveal-wrong');
+      btn.classList.remove('selected');
+    });
+    const isCorrect = data.chosen === data.correct;
+    card.classList.remove('answered');
+    card.classList.add(isCorrect ? 'correct' : 'wrong');
+    if (isCorrect) correctCount++;
   });
 
   const pct = totalQ > 0 ? (correctCount / totalQ) * 100 : 0;
@@ -811,10 +811,11 @@ function submitTest() {
     ladderTrack.appendChild(step);
   });
 
-  // Swap to the results page entirely — quiz/questions are no longer shown
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('results-page').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'auto' });
+  // Show results panel
+  document.getElementById('submit-btn').style.display = 'none';
+  const resultsEl = document.getElementById('results');
+  resultsEl.style.display = 'block';
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   // Animated count-up (percentage)
   const scoreEl = document.getElementById('res-scaled');
@@ -870,9 +871,10 @@ function resetTest() {
   clearInterval(timerInterval);
   document.getElementById('timer').style.color = '';
   Object.keys(answers).forEach(k => delete answers[k]);
-  document.getElementById('results-page').style.display = 'none';
-  document.getElementById('submit-btn').disabled         = true;
-  window.scrollTo({ top: 0, behavior: 'auto' });
+  document.getElementById('results').style.display    = 'none';
+  document.getElementById('submit-btn').style.display  = 'block';
+  document.getElementById('submit-btn').disabled       = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   document.getElementById('main-content').style.display = 'none';
   document.getElementById('loading-screen').style.display = 'flex';
