@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proficiency Test — AnthonyTheSabakumono</title>
+<title>ЭЕШ English Mock Test — AnthonyTheSabakumono</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -134,18 +134,18 @@
   .section-num { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--gold-dim); }
   .section-name { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--gold); }
   .section-count { font-size: 11px; color: var(--text-dim); }
+  .section-instr { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; border-left: 2px solid var(--gold-dim); padding-left: 12px; }
 
   /* ── QUESTION CARD ── */
   .q-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 20px 22px;
     margin-bottom: 10px;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, opacity 0.2s;
   }
   .q-card:hover { border-color: var(--gold-dim); }
   .q-card.answered { border-color: var(--gold-dim); background: var(--surface2); }
-  .q-card.correct { border-color: var(--green) !important; background: rgba(106,154,90,0.05) !important; }
-  .q-card.wrong { border-color: var(--red) !important; background: rgba(168,72,72,0.05) !important; }
+  .q-card.locked { opacity: 0.55; pointer-events: none; }
   .q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
   .q-num-badge {
     background: var(--surface3); border: 1px solid var(--border);
@@ -173,8 +173,6 @@
   }
   .opt-btn:hover { border-color: var(--gold-dim); background: var(--surface3); }
   .opt-btn.selected { border-color: var(--gold); background: var(--gold-glow); color: var(--gold-bright); }
-  .opt-btn.reveal-correct { border-color: var(--green) !important; background: rgba(106,154,90,0.12) !important; color: #8aba78 !important; }
-  .opt-btn.reveal-wrong { border-color: var(--red) !important; background: rgba(168,72,72,0.1) !important; color: #c07070 !important; }
   .opt-letter {
     width: 22px; height: 22px; border-radius: 3px;
     background: var(--surface3); border: 1px solid var(--border);
@@ -183,8 +181,18 @@
     transition: all 0.15s;
   }
   .opt-btn.selected .opt-letter { background: var(--gold); border-color: var(--gold); color: #1a1000; }
-  .opt-btn.reveal-correct .opt-letter { background: var(--green); border-color: var(--green); color: #fff; }
-  .opt-btn.reveal-wrong .opt-letter { background: var(--red); border-color: var(--red); color: #fff; }
+
+  /* ── READING PASSAGE ── */
+  .passage-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dim);
+    border-radius: var(--radius); padding: 22px 24px;
+    margin-bottom: 20px;
+    font-size: 14px; line-height: 1.8; color: var(--text-dim);
+  }
+  .passage-card p { margin-bottom: 12px; }
+  .passage-card p:last-child { margin-bottom: 0; }
+  .passage-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text); margin-bottom: 14px; }
 
   /* ── SUBMIT ── */
   .submit-wrap { max-width: 760px; margin: 48px auto; padding: 0 24px; }
@@ -232,47 +240,18 @@
     letter-spacing: 0.12em; text-transform: uppercase;
     border: 1px solid var(--gold-dim);
     background: var(--gold-glow); color: var(--gold);
-    transition: all 0.4s;
   }
   .result-tier-badge.tier-elite  { border-color: #C9A84C; background: rgba(201,168,76,0.12); color: #E8C96A; }
   .result-tier-badge.tier-strong { border-color: #6A9A5A; background: rgba(106,154,90,0.10); color: #8aba78; }
   .result-tier-badge.tier-dev    { border-color: #7A5E28; background: rgba(201,168,76,0.06); color: #C9A84C; }
   .result-tier-badge.tier-begin  { border-color: #5A5A5A; background: rgba(90,90,90,0.10);   color: #888; }
-  .tier-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: currentColor; opacity: 0.8;
-  }
+  .tier-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.8; }
 
-  .result-score-big {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(64px, 12vw, 92px);
-    line-height: 1; margin-bottom: 4px;
-    letter-spacing: -0.02em;
-    background: linear-gradient(160deg, var(--gold-bright) 0%, var(--gold) 60%, var(--gold-dim) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-    position: relative; z-index: 1;
-  }
-  .result-score-label {
-    font-size: 11px; color: var(--text-dim);
-    font-family: 'DM Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase;
-  }
-  .result-band {
-    font-size: 17px; color: var(--text); margin-top: 16px;
-    font-family: 'DM Serif Display', serif; letter-spacing: 0.01em;
-  }
-  .result-raw {
-    font-family: 'DM Mono', monospace; font-size: 11.5px;
-    color: var(--text-dim); margin-top: 8px; letter-spacing: 0.04em;
-  }
-
-  .score-ring-wrap {
-    position: relative; display: inline-block; margin-bottom: 8px;
-  }
+  .score-ring-wrap { position: relative; display: inline-block; margin-bottom: 8px; }
   .score-ring {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 150px; height: 150px;
+    width: 190px; height: 190px;
     border-radius: 50%;
     border: 1px solid rgba(201,168,76,0.15);
     box-shadow: 0 0 40px rgba(201,168,76,0.06), inset 0 0 40px rgba(201,168,76,0.03);
@@ -284,51 +263,47 @@
     50%      { opacity: 0.9; transform: translate(-50%,-50%) scale(1.04); }
   }
 
-  /* ── LEVEL LADDER ── */
-  .ladder-section { margin-bottom: 16px; }
+  .result-score-big {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(56px, 11vw, 80px);
+    line-height: 1; margin-bottom: 4px;
+    letter-spacing: -0.02em;
+    background: linear-gradient(160deg, var(--gold-bright) 0%, var(--gold) 60%, var(--gold-dim) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative; z-index: 1;
+  }
+  .result-score-label { font-size: 11px; color: var(--text-dim); font-family: 'DM Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; }
+  .result-band { font-size: 17px; color: var(--text); margin-top: 16px; font-family: 'DM Serif Display', serif; letter-spacing: 0.01em; }
+  .result-raw { font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--text-dim); margin-top: 8px; letter-spacing: 0.04em; }
+
+  @keyframes score-reveal {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .score-animate-in { animation: score-reveal 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
   .breakdown-label {
     font-family: 'DM Mono', monospace; font-size: 10px;
     color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase;
     margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
   }
-  .breakdown-label::before, .breakdown-label::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
-  .ladder-track {
-    display: flex; gap: 6px; margin-bottom: 8px;
-  }
-  .ladder-step {
-    flex: 1; text-align: center; padding: 10px 4px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); transition: all 0.3s;
-  }
-  .ladder-step .ladder-code {
-    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim);
-    display: block; margin-bottom: 2px;
-  }
-  .ladder-step .ladder-name {
-    font-size: 9.5px; color: var(--text-hint); letter-spacing: 0.03em;
-  }
-  .ladder-step.achieved {
-    border-color: var(--gold); background: var(--gold-glow);
-  }
-  .ladder-step.achieved .ladder-code { color: var(--gold-bright); }
-  .ladder-step.achieved .ladder-name { color: var(--gold); }
-  .ladder-bar-track {
-    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
-  }
-  .ladder-bar-fill {
-    height: 100%; border-radius: 2px; width: 0%;
-    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-    transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
-  }
+  .breakdown-label::before, .breakdown-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* advice card */
+  .breakdown-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  .bk-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; text-align: center;
+    transition: border-color 0.3s;
+  }
+  .bk-num { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text); }
+  .bk-pct { font-size: 11px; color: var(--gold); font-family: 'DM Mono', monospace; }
+  .bk-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
   .advice-card {
     background: var(--surface); border: 1px solid var(--border);
     border-left: 3px solid var(--gold-dim); border-radius: var(--radius);
     padding: 18px 20px; margin-bottom: 16px;
-    transition: border-left-color 0.4s;
   }
   .advice-title {
     font-size: 10px; font-family: 'DM Mono', monospace; color: var(--gold);
@@ -338,10 +313,7 @@
   .advice-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .advice-text { font-size: 13.5px; color: var(--text-dim); line-height: 1.7; }
 
-  /* share row */
-  .result-share {
-    display: flex; gap: 8px; margin-bottom: 12px;
-  }
+  .result-share { display: flex; gap: 8px; margin-bottom: 12px; }
   .share-btn {
     flex: 1; padding: 11px 14px;
     background: var(--gold); border: none; border-radius: 6px;
@@ -365,19 +337,12 @@
   }
   .reset-btn:hover { border-color: var(--gold-dim); color: var(--text); }
 
-  @keyframes score-reveal {
-    from { opacity: 0; transform: translateY(10px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .score-animate-in { animation: score-reveal 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-
   /* ── RESPONSIVE ── */
   @media (max-width: 540px) {
     .stats-row { gap: 20px; }
     .instr-card { grid-template-columns: 1fr; }
+    .breakdown-grid { grid-template-columns: repeat(3,1fr); }
     .header-meta .timer { display: none; }
-    .ladder-track { flex-wrap: wrap; }
-    .ladder-step { flex: 1 1 30%; }
   }
 
   /* ── SCROLL TO TOP ── */
@@ -400,7 +365,7 @@
   <div class="header-meta">
     <span class="progress-label" id="hdr-progress">0 / —</span>
     <div class="progress-track"><div class="progress-bar" id="hdr-bar"></div></div>
-    <span class="timer" id="timer">—:—</span>
+    <span class="timer" id="timer">80:00</span>
   </div>
 </header>
 
@@ -418,18 +383,19 @@
   <div class="error-code" id="error-code"></div>
 </div>
 
-<!-- MAIN CONTENT (hidden until data loads) -->
+<!-- MAIN CONTENT -->
 <div id="main-content" style="display:none">
 
 <!-- HERO -->
 <div class="hero">
-  <div class="mock-tag" id="hero-tag">Proficiency Test · <span id="hero-seed"></span></div>
-  <h1 id="hero-title">ТҮВШИН <em>ТОГТООХ ТЕСТ</em></h1>
-  <p class="hero-sub" id="hero-sub">Асуултууд сан дотроос санамсаргүй сонгогдож, таны түвшинг тодорхойлно</p>
+  <div class="mock-tag">АНГЛИ ХЭЛ ЭЕШ Mock шалгалт · <span id="hero-seed"></span></div>
+  <h1>АНГЛИ ХЭЛ ЭЕШ<br><em>БҮРЭН ДУУРАЙЛГАСАН</em></h1>
+  <p class="hero-sub">Сүүлийн 10 жилийн ЭЕШ-д үндэслэн ижил зүй тогтол, ижил түвшинд, жинхэнэ ЭЕШ мэт дуурайлган хийсэн болно</p>
   <div class="stats-row">
     <div class="stat"><div class="stat-num" id="hero-total">—</div><div class="stat-label">Асуултууд</div></div>
-    <div class="stat"><div class="stat-num" id="hero-time">—</div><div class="stat-label">Минут</div></div>
-    <div class="stat"><div class="stat-num" id="hero-levels">—</div><div class="stat-label">Түвшин</div></div>
+    <div class="stat"><div class="stat-num">80</div><div class="stat-label">Минут</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Хэсэг</div></div>
+    <div class="stat"><div class="stat-num">200–800</div><div class="stat-label">Онооны хил</div></div>
   </div>
 </div>
 
@@ -438,72 +404,75 @@
   <div class="instr-card">
     <div class="instr-item">
       <div class="instr-icon">📋</div>
-      <div class="instr-text">
-        <strong>Зөвхөн нэг хариулт</strong>
-        Зөв гэж үзсэн нэг л хариултыг сонгоно.
-      </div>
+      <div class="instr-text"><strong>Зөвхөн нэг хариулт</strong>Зөв гэж үзсэн нэг л хариултыг сонгоно.</div>
     </div>
     <div class="instr-item">
       <div class="instr-icon">🎲</div>
-      <div class="instr-text">
-        <strong>Санамсаргүй асуулт</strong>
-        Тест тус бүр өөр өөр асуулттай — дахин өгөхөд шинэ дасгал.
-      </div>
+      <div class="instr-text"><strong>Санамсаргүй асуулт</strong>Тест тус бүр өөр өөр асуулттай — дахин өгөхөд шинэ дасгал.</div>
     </div>
     <div class="instr-item">
       <div class="instr-icon">⏱</div>
-      <div class="instr-text">
-        <strong>Хугацаатай</strong>
-        Анхныхаа хариултыг сонгосон цагаас эхлээд цаг явж эхэлнэ.
-      </div>
+      <div class="instr-text"><strong>80 минут</strong>Анхныхаа хариултыг сонгосон цагаас эхлээд цаг явж эхэлнэ.</div>
     </div>
     <div class="instr-item">
-      <div class="instr-icon">📊</div>
-      <div class="instr-text">
-        <strong>Түвшин тогтооно</strong>
-        Дүн бус, зөв хариултын хувиар таны түвшинг тодорхойлно.
-      </div>
+      <div class="instr-icon">📖</div>
+      <div class="instr-text"><strong>Унших хэсэг</strong>3-р хэсэгт хариулхаасаа өмнө унших эхийг сайтар уншина.</div>
     </div>
     <div class="instr-item">
       <div class="instr-icon">✅</div>
-      <div class="instr-text">
-        <strong>Үр дүн харах</strong>
-        Бүх асуултандаа хариулаад "ҮР ДҮН ХАРАХ" товчин дээр дарна.
-      </div>
+      <div class="instr-text"><strong>Оноо харах</strong>Бүх асуултандаа хариулаад "ЭЕШ ОНОО ХАРАХ" товчин дээр дарж оноогоо харна. Зөв хариултууд харагдахгүй — зөвхөн оноо, түвшин, зөвлөгөө.</div>
     </div>
     <div class="instr-item">
       <div class="instr-icon">🔔</div>
-      <div class="instr-text">
-        <strong>Subscribe</strong>
-        Түвшингээ харчихаад сувагаа дагахаа мартваа.
-      </div>
+      <div class="instr-text"><strong>Subscribe</strong>Оноогоо харчихаад сувагаа дагахаа мартваа.</div>
     </div>
   </div>
 </div>
 
 <!-- QUIZ -->
 <div class="section-wrap" id="quiz-wrap">
+
   <div class="section-divider">
     <div class="section-badge">
-      <span class="section-name" id="section-name">Асуултууд</span>
-      <span class="section-count" id="q-count">· — Асуулт</span>
+      <span class="section-num">01</span>
+      <span class="section-name">Grammar - Дүрэм</span>
+      <span class="section-count" id="gr-count">· — Асуулт</span>
     </div>
   </div>
-  <div id="quiz-qs"></div>
+  <p class="section-instr">Choose the word or phrase that best completes each sentence - Өгүүлбэр бүрийг утгийн хувьд хамгийн бүрэн болгох үг эсвэл өгүүлбэрийг сонго</p>
+  <div id="grammar-qs"></div>
+
+  <div class="section-divider">
+    <div class="section-badge">
+      <span class="section-num">02</span>
+      <span class="section-name">Vocabulary - Шинэ үг</span>
+      <span class="section-count" id="vc-count">· — Асуулт</span>
+    </div>
+  </div>
+  <p class="section-instr">Choose the word or phrase that best fits the meaning of the sentence - Өгүүлбэрт тохирох хамгийн оновчтой үг эсвэл өгүүлбэрийг сонго</p>
+  <div id="vocab-qs"></div>
+
+  <div class="section-divider">
+    <div class="section-badge">
+      <span class="section-num">03</span>
+      <span class="section-name">Reading Comprehension - Уншиж ойлгох</span>
+      <span class="section-count" id="rd-count">· — Асуулт</span>
+    </div>
+  </div>
+  <p class="section-instr">Read both passages carefully, then answer the questions that follow - Хоёр эхийг сайтар уншаад тус тусынх нь асуулт бүрт хариул</p>
+  <div id="reading-qs"></div>
+
 </div>
 
 <!-- SUBMIT -->
 <div class="submit-wrap">
-  <button class="submit-btn" id="submit-btn" onclick="submitTest()" disabled>
-     ҮР ДҮН ХАРАХ →
-  </button>
+  <button class="submit-btn" id="submit-btn" onclick="submitTest()" disabled>ЭЕШ ОНОО ХАРАХ →</button>
   <div class="answered-status" id="answered-status">Бүх асуултанд хариулсан эсэхээ нягтлаарай!</div>
 </div>
 
 <!-- RESULTS -->
 <div class="results" id="results">
 
-  <!-- Score hero -->
   <div class="result-hero">
     <div class="result-tier-badge" id="res-tier-badge">
       <span class="tier-dot"></span>
@@ -513,29 +482,25 @@
       <div class="score-ring"></div>
       <div class="result-score-big" id="res-scaled">—</div>
     </div>
-    <div class="result-score-label" id="res-score-label">Зөв хариултын хувь</div>
+    <div class="result-score-label">Таны ЭЕШ оноо (200–800)</div>
     <div class="result-band" id="res-band"></div>
     <div class="result-raw" id="res-raw"></div>
   </div>
 
-  <!-- Level ladder -->
-  <div class="ladder-section">
-    <div class="breakdown-label">Түвшингийн шаталбар</div>
-    <div class="ladder-track" id="ladder-track"></div>
-    <div class="ladder-bar-track"><div class="ladder-bar-fill" id="ladder-bar"></div></div>
+  <div class="breakdown-label">Хэсгийн задаргаа</div>
+  <div class="breakdown-grid">
+    <div class="bk-card"><div class="bk-num" id="bk-gr">—</div><div class="bk-pct" id="bk-gr-pct"></div><div class="bk-label">Grammar</div></div>
+    <div class="bk-card"><div class="bk-num" id="bk-vc">—</div><div class="bk-pct" id="bk-vc-pct"></div><div class="bk-label">Vocabulary</div></div>
+    <div class="bk-card"><div class="bk-num" id="bk-rd">—</div><div class="bk-pct" id="bk-rd-pct"></div><div class="bk-label">Reading</div></div>
   </div>
 
-  <!-- Advice -->
-  <div class="advice-card" id="advice-card">
+  <div class="advice-card">
     <div class="advice-title">Anthony's Analysis</div>
     <div class="advice-text" id="res-advice"></div>
   </div>
 
-  <!-- Actions -->
   <div class="result-share">
-    <button class="share-btn" onclick="copyScore()">
-      <span id="copy-icon">📋</span> Үр дүн хуулах
-    </button>
+    <button class="share-btn" onclick="copyScore()"><span id="copy-icon">📋</span> Үр дүн хуулах</button>
     <button class="share-btn secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Дээш</button>
   </div>
   <button class="reset-btn" onclick="resetTest()">↺ Ахин өгөх — шинэ асуулттай</button>
@@ -548,57 +513,26 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════
-// DATA FORMAT (questions.json):
+// questions.json shape (unchanged from your original eee-01 bank):
 // {
-//   "meta": {
-//     "title": "English Proficiency Test",
-//     "title_em": "БҮРЭН ТЕСТ",          // italic/gold part of <h1>, optional
-//     "subtitle_mn": "...",
-//     "pick": 25,                        // how many questions to randomly draw
-//     "time_minutes": 30,                // 0/omit = no timer
-//     "levels": [                        // sorted HIGH → LOW, first match wins
-//       { "min_pct": 90, "code": "C2", "label": "Proficient",   "label_mn": "Мастер",      "advice_mn": "..." },
-//       { "min_pct": 75, "code": "C1", "label": "Advanced",     "label_mn": "Ахисан",      "advice_mn": "..." },
-//       { "min_pct": 60, "code": "B2", "label": "Upper-Inter.", "label_mn": "Дундаас дээш", "advice_mn": "..." },
-//       { "min_pct": 45, "code": "B1", "label": "Intermediate", "label_mn": "Дунд",        "advice_mn": "..." },
-//       { "min_pct": 25, "code": "A2", "label": "Elementary",   "label_mn": "Анхан шат",   "advice_mn": "..." },
-//       { "min_pct": 0,  "code": "A1", "label": "Beginner",     "label_mn": "Эхлэл",       "advice_mn": "..." }
-//     ]
-//   },
-//   "questions": [
-//     { "id": 1, "question": "Choose the sentence with the best use of the subjunctive mood:",
-//       "options": ["If I was you, I would study harder.", "If I were you, I would study harder.",
-//                    "If I am you, I would study harder.", "If I be you, I would study harder."],
-//       "answer": 1 }
-//   ]
+//   "meta": { "pick": { "grammar": N, "vocabulary": N, "reading_passages": N } },
+//   "grammar":    [ { q, opts:["A) ...","B) ..."], ans:"A" }, ... ],
+//   "vocabulary": [ same shape ],
+//   "reading":    [ { title, text:["p1","p2"], questions:[ {q,opts,ans}, ... ] }, ... ]
 // }
-// `answer` is a 0-based index into `options`. `id` just needs to be unique —
-// it's what pickRandom draws from, so you can safely reorder/add/remove
-// questions in the bank without breaking anything.
 // ══════════════════════════════════════════════════════════════════
 
-let allLevels   = [];   // meta.levels, high → low
-let quizQs      = [];   // the randomly picked question set for this session
-let timeMinutes = 0;
-
-// Used only if questions.json has no meta.levels (e.g. plain-array format)
-const DEFAULT_LEVELS = [
-  { min_pct: 90, code: 'C2', label: 'Proficient',         label_mn: 'Мастер',       advice_mn: 'Гайхалтай! 90%+ зөв хариуллаа.' },
-  { min_pct: 75, code: 'C1', label: 'Advanced',           label_mn: 'Ахисан',       advice_mn: 'Маш сайн байна, цөөн алдаа гарлаа.' },
-  { min_pct: 60, code: 'B2', label: 'Upper-Intermediate', label_mn: 'Дундаас дээш', advice_mn: 'Сайн үр дүн, суурь мэдлэг бат бөх байна.' },
-  { min_pct: 45, code: 'B1', label: 'Intermediate',       label_mn: 'Дунд',         advice_mn: 'Дунд түвшинд байна, тогтмол давт.' },
-  { min_pct: 25, code: 'A2', label: 'Elementary',         label_mn: 'Анхан шат',    advice_mn: 'Анхан шатны түвшин, суурь дүрэм дээр анхаарлаа хандуул.' },
-  { min_pct: 0,  code: 'A1', label: 'Beginner',           label_mn: 'Эхлэл',        advice_mn: 'Эхлэл — хэн бүхэн энэ түвшнээс эхэлдэг.' }
-];
+let grammarQs   = [];
+let vocabQs     = [];
+let readingData = [];
 
 const answers = {};
 let timerInterval = null;
-let secondsLeft = 0;
+let secondsLeft = 80 * 60;
 let timerStarted = false;
 let submitted = false;
 let totalQ = 0;
 
-// ── HELPERS ──────────────────────────────────────────────────────
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -607,63 +541,37 @@ function shuffle(arr) {
   }
   return a;
 }
+function pickRandom(arr, n) { return shuffle(arr).slice(0, Math.min(n, arr.length)); }
 
-function pickRandom(arr, n) {
-  return shuffle(arr).slice(0, Math.min(n, arr.length));
-}
-
-function letterFor(i) { return String.fromCharCode(65 + i); } // 0->A, 1->B, ...
-
-// ── LOAD & PICK ───────────────────────────────────────────────────
 async function loadAndBuild() {
   try {
     const res = await fetch('questions.json', { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
-    const raw = await res.json();
+    const bank = await res.json();
+    const cfg = bank.meta.pick;
 
-    // Accept two shapes:
-    //  1) { meta: {...}, questions: [...] }   ← preferred, lets you set levels/pick/timer
-    //  2) [ {...}, {...}, ... ]               ← plain array, just the questions themselves
-    const isPlainArray = Array.isArray(raw);
-    const bank = isPlainArray ? { meta: {}, questions: raw } : raw;
+    grammarQs = pickRandom(bank.grammar, cfg.grammar);
+    vocabQs   = pickRandom(bank.vocabulary, cfg.vocabulary);
 
-    if (!Array.isArray(bank.questions) || bank.questions.length === 0) {
-      throw new Error('questions.json must contain a "questions" array (or just be an array of questions) — none found.');
-    }
+    const passages = pickRandom(bank.reading, cfg.reading_passages);
+    readingData = passages.map(p => ({ passage: p, questions: p.questions }));
 
-    const meta = bank.meta || {};
-    allLevels  = (meta.levels && meta.levels.length) ? meta.levels : DEFAULT_LEVELS;
-    timeMinutes = meta.time_minutes || 0;
-    secondsLeft = timeMinutes * 60;
+    const rdTotal = readingData.reduce((s, r) => s + r.questions.length, 0);
+    totalQ = grammarQs.length + vocabQs.length + rdTotal;
 
-    const pickN = meta.pick || bank.questions.length;
-    quizQs = pickRandom(bank.questions, pickN);
-    totalQ = quizQs.length;
-
-    // Hero text
-    document.getElementById('hero-title').innerHTML =
-      (meta.title || 'ТҮВШИН ТОГТООХ ТЕСТ') +
-      (meta.title_em ? ` <em>${meta.title_em}</em>` : '');
-    document.getElementById('hero-sub').textContent =
-      meta.subtitle_mn || 'Асуултууд сан дотроос санамсаргүй сонгогдож, таны түвшинг тодорхойлно';
-    document.getElementById('hero-tag').innerHTML =
-      (meta.title || 'Proficiency Test') + ' · <span id="hero-seed"></span>';
-
-    document.getElementById('hero-total').textContent  = totalQ;
-    document.getElementById('hero-time').textContent   = timeMinutes > 0 ? timeMinutes : '∞';
-    document.getElementById('hero-levels').textContent = allLevels.length || '—';
-    document.getElementById('q-count').textContent     = `· ${totalQ} Асуулт`;
+    document.getElementById('hero-total').textContent   = totalQ;
+    document.getElementById('gr-count').textContent     = `· ${grammarQs.length} Асуулт`;
+    document.getElementById('vc-count').textContent     = `· ${vocabQs.length} Асуулт`;
+    document.getElementById('rd-count').textContent     = `· ${rdTotal} Асуулт`;
     document.getElementById('hdr-progress').textContent = `0 / ${totalQ}`;
-    document.getElementById('timer').textContent = timeMinutes > 0
-      ? `${String(timeMinutes).padStart(2,'0')}:00` : '∞';
 
-    // Seed label
     const seed = Math.floor(Math.random() * 0xFFF).toString(16).toUpperCase().padStart(3,'0');
-    const seedEl = document.getElementById('hero-seed');
-    if (seedEl) seedEl.textContent = `Seed #${seed}`;
+    document.getElementById('hero-seed').textContent = `Seed #${seed}`;
 
-    // Build UI
-    buildQuiz(quizQs);
+    buildSection(grammarQs, 'grammar-qs', 1, 'gr');
+    buildSection(vocabQs,   'vocab-qs',   grammarQs.length + 1, 'vc');
+    buildReadingSection(readingData, grammarQs.length + vocabQs.length + 1);
+
     updateProgress();
 
     document.getElementById('loading-screen').style.display = 'none';
@@ -676,29 +584,47 @@ async function loadAndBuild() {
   }
 }
 
-// ── BUILD UI ─────────────────────────────────────────────────────
-function buildQuiz(questions) {
-  const container = document.getElementById('quiz-qs');
+function buildSection(questions, containerId, startNum, section) {
+  const container = document.getElementById(containerId);
   container.innerHTML = '';
-  questions.forEach((q, i) => container.appendChild(makeCard(q, i + 1)));
+  questions.forEach((q, i) => container.appendChild(makeCard(q, startNum + i, section)));
 }
 
-function makeCard(q, num) {
+function buildReadingSection(data, startNum) {
+  const container = document.getElementById('reading-qs');
+  container.innerHTML = '';
+  let num = startNum;
+  data.forEach((item, pi) => {
+    const pc = document.createElement('div');
+    pc.className = 'passage-card';
+    if (pi > 0) pc.style.marginTop = '24px';
+    const paragraphs = item.passage.text.map(p => `<p>${p}</p>`).join('');
+    pc.innerHTML = `<div class="passage-title">${item.passage.title}</div>${paragraphs}`;
+    container.appendChild(pc);
+
+    item.questions.forEach(q => {
+      container.appendChild(makeCard(q, num, 'rd'));
+      num++;
+    });
+  });
+}
+
+function makeCard(q, num, section) {
   const card = document.createElement('div');
   card.className = 'q-card';
   card.id = `card-${num}`;
-  card.dataset.qid = q.id;
 
+  const qText = q.q.replace('_____', '<span class="blank"></span>');
   card.innerHTML = `
     <div class="q-header">
       <span class="q-num-badge">Q${num}</span>
-      <span class="q-text">${q.question}</span>
+      <span class="q-text">${qText}</span>
     </div>
     <div class="options">
-      ${q.options.map((opt, i) => `
-        <button class="opt-btn" onclick="selectAnswer(${num}, ${i}, ${q.answer}, this)">
-          <span class="opt-letter">${letterFor(i)}</span>
-          <span>${opt}</span>
+      ${q.opts.map(opt => `
+        <button class="opt-btn" onclick="selectAnswer(${num}, '${opt.charAt(0)}', '${q.ans}', this, '${section}')">
+          <span class="opt-letter">${opt.charAt(0)}</span>
+          <span>${opt.substring(3)}</span>
         </button>
       `).join('')}
     </div>
@@ -706,18 +632,16 @@ function makeCard(q, num) {
   return card;
 }
 
-// ── INTERACTION ──────────────────────────────────────────────────
-function selectAnswer(num, chosenIdx, correctIdx, btn) {
+function selectAnswer(num, chosen, correct, btn, section) {
   if (submitted) return;
-  if (!timerStarted && timeMinutes > 0) startTimer();
-  timerStarted = true;
+  if (!timerStarted) startTimer();
 
   const card = document.getElementById(`card-${num}`);
   card.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   card.classList.add('answered');
 
-  answers[num] = { chosen: chosenIdx, correct: correctIdx };
+  answers[num] = { chosen, correct, section };
   updateProgress();
 }
 
@@ -736,8 +660,8 @@ function updateProgress() {
   }
 }
 
-// ── TIMER ────────────────────────────────────────────────────────
 function startTimer() {
+  timerStarted = true;
   timerInterval = setInterval(() => {
     secondsLeft--;
     const m = Math.floor(secondsLeft / 60);
@@ -748,110 +672,104 @@ function startTimer() {
   }, 1000);
 }
 
-// ── LEVEL LOOKUP ─────────────────────────────────────────────────
-function levelForPct(pct) {
-  // allLevels assumed sorted high -> low by min_pct; first match wins
-  for (const lvl of allLevels) {
-    if (pct >= lvl.min_pct) return lvl;
-  }
-  return allLevels[allLevels.length - 1] || { code: '—', label_mn: '—', advice_mn: '' };
+function tierFor(scaled) {
+  if (scaled >= 700) return { cls: 'tier-elite',  label: 'ELITE — TOP 5%' };
+  if (scaled >= 580) return { cls: 'tier-strong', label: 'STRONG' };
+  if (scaled >= 450) return { cls: 'tier-dev',    label: 'DEVELOPING' };
+  return { cls: 'tier-begin', label: 'BEGINNER' };
 }
 
-function tierClassFor(levelIndex, total) {
-  // top level -> elite, then strong, dev, begin (roughly quartiled)
-  const frac = levelIndex / Math.max(total - 1, 1);
-  if (frac <= 0.15) return 'tier-elite';
-  if (frac <= 0.45) return 'tier-strong';
-  if (frac <= 0.75) return 'tier-dev';
-  return 'tier-begin';
-}
-
-// ── SUBMIT ───────────────────────────────────────────────────────
 function submitTest() {
   submitted = true;
   clearInterval(timerInterval);
 
-  let correctCount = 0;
+  let grCorrect = 0, vcCorrect = 0, rdCorrect = 0;
+
+  // Lock all cards WITHOUT revealing which option was correct — only
+  // your own selection stays highlighted, everything else just fades.
   Object.entries(answers).forEach(([num, data]) => {
     const card = document.getElementById(`card-${num}`);
-    card.querySelectorAll('.opt-btn').forEach((btn, i) => {
-      if (i === data.correct) btn.classList.add('reveal-correct');
-      else if (i === data.chosen) btn.classList.add('reveal-wrong');
-      btn.classList.remove('selected');
-    });
+    card.classList.add('locked');
+
     const isCorrect = data.chosen === data.correct;
-    card.classList.remove('answered');
-    card.classList.add(isCorrect ? 'correct' : 'wrong');
-    if (isCorrect) correctCount++;
+    if (isCorrect) {
+      if (data.section === 'gr') grCorrect++;
+      else if (data.section === 'vc') vcCorrect++;
+      else if (data.section === 'rd') rdCorrect++;
+    }
   });
 
-  const pct = totalQ > 0 ? (correctCount / totalQ) * 100 : 0;
-  const level = levelForPct(pct);
-  const levelIdx = allLevels.indexOf(level);
-  const tierClass = tierClassFor(levelIdx, allLevels.length);
+  const rdTotal  = totalQ - grammarQs.length - vocabQs.length;
+  const grPct    = grammarQs.length > 0 ? grCorrect / grammarQs.length : 0;
+  const vcPct    = vocabQs.length > 0   ? vcCorrect / vocabQs.length   : 0;
+  const rdPct    = rdTotal > 0          ? rdCorrect / rdTotal          : 0;
+  const weighted = grPct * 0.4 + vcPct * 0.3 + rdPct * 0.3;
+  const scaled   = Math.round(200 + weighted * 600);
+  const totalCorrect = grCorrect + vcCorrect + rdCorrect;
 
-  // Tier badge
+  const tier = tierFor(scaled);
   const badge = document.getElementById('res-tier-badge');
-  badge.className = 'result-tier-badge ' + tierClass;
-  document.getElementById('res-tier-label').textContent = `${level.code} — ${level.label_mn || level.label}`;
+  badge.className = 'result-tier-badge ' + tier.cls;
+  document.getElementById('res-tier-label').textContent = tier.label;
 
-  document.getElementById('res-band').textContent = level.label_mn || level.label || '';
-  document.getElementById('res-raw').textContent  = `${correctCount} / ${totalQ} зөв хариулт`;
-  document.getElementById('res-advice').textContent = level.advice_mn ||
-    `Та ${Math.round(pct)}% зөв хариуллаа. Алдсан асуултуудаа дахин харж, дутсан хэсгээ тодорхойлно уу.`;
+  let band, advice;
+  if (scaled >= 700) {
+    band   = "🏆 Гайхалтай — ойролцоогоор Top 5%";
+    advice = `Маш сайн! ${scaled} оноо — энэ бол шилдэг оюутнуудын түвшин. Grammar: ${grCorrect}/${grammarQs.length}, Vocabulary: ${vcCorrect}/${vocabQs.length}, Reading: ${rdCorrect}/${rdTotal}. Алдсан асуултуудаа дахин харж, яг ямар grammar rule дутсаныг тодорлоо. Энэ түвшнийхэд IELTS 6.5+ хялбар байх болно.`;
+  } else if (scaled >= 580) {
+    band   = "👍 Strong — Юу ч гэсэн Их сургуульд орох нь";
+    advice = `Сайн байна! ${scaled} оноо — их сургуульд элсэхэд хангалттай. Grammar-д ${grCorrect}/${grammarQs.length} авлаа. Хамгийн их алдаа гарсан хэсгийг дахин давт. 2 долоо хоног дасгал хийвэл 650+ авах боломжтой.`;
+  } else if (scaled >= 450) {
+    band   = "📚 Developing — Төвлөрч бэлдэх хэрэгтэй";
+    advice = `Бүү санаа зов — ${scaled} оноо авлаа. Grammar (${grCorrect}/${grammarQs.length}), Vocabulary (${vcCorrect}/${vocabQs.length}), Reading (${rdCorrect}/${rdTotal}). Манай сувгаас хичээл үзэж, эсвэл өөр хүссэн даалгаврууд дагнан хий. 1 сар бэлдвэл 100+ оноо нэмэгдэнэ.`;
+  } else {
+    band   = "💪 Beginner — Хэн бүхэнд эхлэл байдаг";
+    advice = `${scaled} оноо авлаа. Grammar (${grCorrect}/${grammarQs.length}): Энэ бол хамгийн чухал хэсэг. Нийт оноо grammar-аас их шалтгаалдаг. Articles, conditionals, tenses-аас эхэл. Өдөр бүр нэг grammar video үзэж, энэ тестийг 3 долоо хоногийн дараа дахин хий.`;
+  }
 
-  // Level ladder — render low to high, highlight achieved
-  const ladderTrack = document.getElementById('ladder-track');
-  ladderTrack.innerHTML = '';
-  const lowToHigh = [...allLevels].reverse();
-  lowToHigh.forEach(lvl => {
-    const step = document.createElement('div');
-    step.className = 'ladder-step' + (lvl === level ? ' achieved' : '');
-    step.innerHTML = `<span class="ladder-code">${lvl.code}</span><span class="ladder-name">${lvl.label_mn || lvl.label}</span>`;
-    ladderTrack.appendChild(step);
-  });
+  document.getElementById('res-band').textContent   = band;
+  document.getElementById('res-raw').textContent    = `${totalCorrect} / ${totalQ} зөв хариулт`;
+  document.getElementById('res-advice').textContent = advice;
 
-  // Show results panel
+  document.getElementById('bk-gr').textContent     = `${grCorrect}/${grammarQs.length}`;
+  document.getElementById('bk-gr-pct').textContent = Math.round(grPct*100) + '%';
+  document.getElementById('bk-vc').textContent     = `${vcCorrect}/${vocabQs.length}`;
+  document.getElementById('bk-vc-pct').textContent = Math.round(vcPct*100) + '%';
+  document.getElementById('bk-rd').textContent     = `${rdCorrect}/${rdTotal}`;
+  document.getElementById('bk-rd-pct').textContent = Math.round(rdPct*100) + '%';
+
   document.getElementById('submit-btn').style.display = 'none';
   const resultsEl = document.getElementById('results');
   resultsEl.style.display = 'block';
   resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Animated count-up (percentage)
+  // Animated score count-up
   const scoreEl = document.getElementById('res-scaled');
-  scoreEl.textContent = '0%';
+  scoreEl.textContent = '200';
   scoreEl.classList.add('score-animate-in');
   const duration = 1400;
   const startTime = performance.now();
-
   function countUp(now) {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / duration, 1);
     const eased = 1 - Math.pow(1 - progress, 3);
-    const current = Math.round(pct * eased);
-    scoreEl.textContent = current + '%';
+    const current = Math.round(200 + (scaled - 200) * eased);
+    scoreEl.textContent = current;
     if (progress < 1) requestAnimationFrame(countUp);
   }
+  setTimeout(() => requestAnimationFrame(countUp), 400);
 
-  setTimeout(() => {
-    requestAnimationFrame(countUp);
-    setTimeout(() => {
-      document.getElementById('ladder-bar').style.width = pct + '%';
-    }, 200);
-  }, 500);
+  // store latest result for the copy button
+  window.__lastResult = { scaled, totalCorrect, totalQ, tierLabel: tier.label };
 }
 
-// ── COPY SCORE ────────────────────────────────────────────────────
 function copyScore() {
-  const score = document.getElementById('res-scaled').textContent;
-  const raw   = document.getElementById('res-raw').textContent;
-  const tier  = document.getElementById('res-tier-label').textContent;
-  const title = document.getElementById('hero-title').textContent.trim();
-
-  const text = `📊 ${title} — AnthonyTheSabakumono
+  const r = window.__lastResult;
+  if (!r) return;
+  const text = `📊 ЭЕШ English Mock Test — AnthonyTheSabakumono
 ━━━━━━━━━━━━━━━━━
-🏆 Түвшин: ${tier}
-📋 ${raw}  (${score})
+🏆 Түвшин: ${r.tierLabel}
+📋 Оноо: ${r.scaled} / 800  (${r.totalCorrect}/${r.totalQ} зөв)
 ━━━━━━━━━━━━━━━━━
 🔗 youtube.com/@AnthonyTheSabakumono`;
 
@@ -864,11 +782,12 @@ function copyScore() {
   });
 }
 
-// ── RESET ────────────────────────────────────────────────────────
 function resetTest() {
   submitted     = false;
   timerStarted  = false;
+  secondsLeft   = 80 * 60;
   clearInterval(timerInterval);
+  document.getElementById('timer').textContent = '80:00';
   document.getElementById('timer').style.color = '';
   Object.keys(answers).forEach(k => delete answers[k]);
   document.getElementById('results').style.display    = 'none';
@@ -876,17 +795,15 @@ function resetTest() {
   document.getElementById('submit-btn').disabled       = true;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('main-content').style.display   = 'none';
   document.getElementById('loading-screen').style.display = 'flex';
   setTimeout(loadAndBuild, 200);
 }
 
-// ── SCROLL TOP ───────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
   document.getElementById('scroll-top').classList.toggle('visible', window.scrollY > 400);
 });
 
-// ── INIT ─────────────────────────────────────────────────────────
 loadAndBuild();
 </script>
 </body>
