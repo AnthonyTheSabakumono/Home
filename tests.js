@@ -62,7 +62,7 @@ const TESTS = [
      lang:       "MN",
      questions:  20,
      minutes:    40,
-     difficulty: 3,
+     difficulty: 0,
      sections:   ["Асуулт"],
      score:      "Extrovert-Introvert",
      desc:       "20хон асуултаар өөрийн зан чанарыг мэдэх боломжтой сорил.",
