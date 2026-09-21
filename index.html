@@ -86,6 +86,71 @@ a { color: inherit; text-decoration: none; }
 .yt-link:hover { color: var(--gold); border-color: var(--gold-dim); }
 .yt-icon { width: 14px; height: 10px; }
 
+/* ── AUTH (sign-in button / user chip) ─────────────────────────── */
+.auth-btn {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--bg);
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.auth-btn:hover { background: var(--gold-b); border-color: var(--gold-b); }
+.auth-btn:active { transform: translateY(1px); }
+.auth-icon { width: 13px; height: 13px; flex-shrink: 0; }
+
+.user-chip {
+  display: none;
+  align-items: center; gap: 9px;
+  border: 1px solid var(--border-hi);
+  border-radius: 20px;
+  padding: 4px 12px 4px 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.user-chip:hover { border-color: var(--gold-dim); background: var(--surface2); }
+.user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid var(--border-hi);
+  object-fit: cover;
+  background: var(--surface3);
+}
+.user-name-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--text);
+  letter-spacing: 0.03em;
+  max-width: 120px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.user-menu {
+  display: none;
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface2);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-sm);
+  min-width: 140px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.user-chip.open .user-menu { display: block; }
+.user-menu button {
+  display: block; width: 100%;
+  text-align: left;
+  background: none; border: none;
+  color: var(--text-mid);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 0.05em;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.user-menu button:hover { background: var(--surface3); color: var(--gold); }
+
 /* ── HERO ────────────────────────────────────────────────────────── */
 .hero {
   max-width: 960px;
@@ -377,6 +442,7 @@ a { color: inherit; text-decoration: none; }
   .site-footer { padding-left: 16px; padding-right: 16px; }
   .test-grid { grid-template-columns: 1fr; }
   .hero-stats { gap: 20px; }
+  .user-name-chip { max-width: 70px; }
 }
 
 /* ── REDUCED MOTION ─────────────────────────────────────────────── */
@@ -395,12 +461,30 @@ a { color: inherit; text-decoration: none; }
   <span class="header-tagline">TEST HUB</span>
   <div class="header-right">
     <a href="https://www.youtube.com/@AnthonyTheSabakumono" target="_blank" class="yt-link" aria-label="YouTube Channel">
-      <!-- YouTube icon SVG -->
       <svg class="yt-icon" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
         <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.321-42.003 24.947-48.284 48.597C15 167.18 15 256.36 15 256.36s0 89.179 11.345 132.277c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.542c23.497-6.321 42.003-24.171 48.284-47.821C561 345.539 561 256.36 561 256.36s0-89.18-11.345-132.277zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/>
       </svg>
       YouTube
     </a>
+
+    <!-- Signed-out state: shown by default, hidden once Firebase confirms a session -->
+    <button id="auth-btn" class="auth-btn">
+      <svg class="auth-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#0A0A0A" d="M43.6 20.5H42V20.4H24v7.2h11.3c-1.6 4.6-6 7.9-11.3 7.9-6.9 0-12.5-5.6-12.5-12.5S17.1 10.5 24 10.5c3.2 0 6.1 1.2 8.3 3.2l5.4-5.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.2-.1-2.4-.4-3.5z"/>
+      </svg>
+      Sign In
+    </button>
+
+    <!-- Signed-in state: hidden by default, shown once Firebase confirms a session -->
+    <div id="user-chip" class="user-chip" onclick="this.classList.toggle('open')">
+      <img id="user-avatar" class="user-avatar" src="" alt="">
+      <span id="user-name" class="user-name-chip"></span>
+      <div class="user-menu">
+        <button onclick="event.stopPropagation(); location.href='profile.html'">My Profile</button>
+        <button onclick="event.stopPropagation(); location.href='leaderboard.html'">Leaderboard</button>
+        <button onclick="event.stopPropagation(); signOutUser()">Sign Out</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -411,7 +495,7 @@ a { color: inherit; text-decoration: none; }
     AnthonyTheSabakumono
   </div>
   <h1>Шалгалтаа сонгоно уу?<br></h1>
-  
+
   <div class="hero-stats" id="hero-stats">
     <!-- filled by JS -->
   </div>
@@ -562,7 +646,6 @@ function renderCards() {
     return;
   }
 
-  // Featured first, then newest (by array order)
   const sorted = [...visible].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
   grid.innerHTML = sorted.map(buildCard).join('');
 }
@@ -571,7 +654,22 @@ function renderCards() {
 renderStats();
 buildFilterButtons();
 renderCards();
+
+// close the user-chip dropdown when clicking outside it
+document.addEventListener('click', (e) => {
+  const chip = document.getElementById('user-chip');
+  if (chip && !chip.contains(e.target)) chip.classList.remove('open');
+});
 </script>
+
+<!-- ── AUTH (Firebase) ──────────────────────────────────────────────
+     All config and logic lives in firebase-setup.js (one source of
+     truth for your project config — anthony-base). This just loads
+     it. Nothing here forces a login — it only toggles which of the
+     two header elements (#auth-btn vs #user-chip) is visible. Every
+     test card above is still a plain link, untouched by any of this.
+------------------------------------------------------------------- -->
+<script type="module" src="firebase-setup.js"></script>
 
 </body>
 </html>
