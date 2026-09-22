@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — AnthonyTheSabakumono</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A; --surface: #111111; --surface2: #161616; --surface3: #1E1E1E;
+  --border: #242424; --border-hi: #2E2E2E;
+  --gold: #C9A84C; --gold-b: #E8C96A; --gold-dim: #7A5E28;
+  --text: #F0EDE4; --text-dim: #6E6A62; --text-mid: #9A9590;
+  --radius: 8px; --radius-sm: 5px;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+.site-header { position: sticky; top: 0; z-index: 100; height: 52px; background: rgba(10,10,10,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 32px; gap: 16px; }
+.brand { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.auth-btn { display: flex; align-items: center; gap: 7px; font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--bg); background: var(--gold); border: 1px solid var(--gold); border-radius: var(--radius-sm); padding: 6px 13px; cursor: pointer; }
+.auth-btn:hover { background: var(--gold-b); }
+.user-chip { display: none; align-items: center; gap: 9px; border: 1px solid var(--border-hi); border-radius: 20px; padding: 4px 12px 4px 4px; cursor: pointer; position: relative; }
+.user-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border-hi); object-fit: cover; }
+.user-name-chip { font-family: 'DM Mono', monospace; font-size: 11px; }
+.user-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--surface2); border: 1px solid var(--border-hi); border-radius: var(--radius-sm); min-width: 140px; overflow: hidden; }
+.user-chip.open .user-menu { display: block; }
+.user-menu button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 11px; padding: 10px 14px; cursor: pointer; }
+.user-menu button:hover { background: var(--surface3); color: var(--gold); }
+
+.wrap { max-width: 640px; margin: 0 auto; padding: 48px 32px 80px; }
+.page-title { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 28px; }
+
+.lb-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 18px; margin-bottom: 8px; }
+.lb-row.top1 { border-color: var(--gold); background: var(--surface2); }
+.lb-rank { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text-dim); width: 24px; }
+.lb-row.top1 .lb-rank { color: var(--gold); }
+.lb-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-hi); }
+.lb-name { flex: 1; font-family: 'DM Mono', monospace; font-size: 13px; }
+.lb-points { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--gold); }
+.empty-note { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); text-align: center; padding: 40px 0; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="brand">AnthonyTheSabakumono</span>
+  <div class="header-right">
+    <button id="auth-btn" class="auth-btn">Sign In</button>
+    <div id="user-chip" class="user-chip" onclick="this.classList.toggle('open')">
+      <img id="user-avatar" class="user-avatar" src="" alt="">
+      <span id="user-name" class="user-name-chip"></span>
+      <div class="user-menu">
+        <button onclick="event.stopPropagation(); location.href='profile.html'">My Profile</button>
+        <button onclick="event.stopPropagation(); location.href='leaderboard.html'">Leaderboard</button>
+        <button onclick="event.stopPropagation(); signOutUser()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <h1 class="page-title">Leaderboard</h1>
+  <div id="content"><div class="empty-note">Loading…</div></div>
+</div>
+
+<script type="module">
+  // Note: this page doesn't require sign-in to VIEW — anyone can see the
+  // leaderboard, same as browsing the free practice tests. Only submitting
+  // a weekly test (weekly-test.html) requires sign-in.
+  import { db } from './firebase-setup.js';
+  import { collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  async function loadLeaderboard() {
+    const content = document.getElementById('content');
+
+    // Read the whole ledger and sum per uid client-side. Fine at hobby
+    // scale (Firebase's free tier gives 50K reads/day) — see the build
+    // plan for when this needs upgrading to a rollup doc instead.
+    const ledgerSnap = await getDocs(collection(db, 'pointsLedger'));
+    const totals = {};
+    ledgerSnap.docs.forEach(d => {
+      const { uid, points } = d.data();
+      totals[uid] = (totals[uid] || 0) + (points || 0);
+    });
+
+    const uids = Object.keys(totals);
+    if (uids.length === 0) {
+      content.innerHTML = '<div class="empty-note">No scores yet — be the first to take a weekly test.</div>';
+      return;
+    }
+
+    // Join against users for display name/photo
+    const rows = await Promise.all(uids.map(async (uid) => {
+      const userSnap = await getDoc(doc(db, 'users', uid));
+      const userData = userSnap.exists() ? userSnap.data() : {};
+      return {
+        uid,
+        points: totals[uid],
+        name: userData.displayName || 'Unknown',
+        photo: userData.photoURL || ''
+      };
+    }));
+
+    rows.sort((a, b) => b.points - a.points);
+
+    content.innerHTML = rows.map((r, i) => `
+      <div class="lb-row ${i === 0 ? 'top1' : ''}">
+        <span class="lb-rank">#${i + 1}</span>
+        <img class="lb-avatar" src="${r.photo}" alt="">
+        <span class="lb-name">${r.name}</span>
+        <span class="lb-points">${r.points}</span>
+      </div>
+    `).join('');
+  }
+
+  loadLeaderboard();
+</script>
+<script type="module" src="firebase-setup.js"></script>
+</body>
+</html>
