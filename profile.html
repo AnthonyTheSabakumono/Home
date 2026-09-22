@@ -79,7 +79,7 @@ a { color: inherit; text-decoration: none; }
     if (user) {
       loadProfile(user);
     } else {
-      content.innerHTML = '<div class="gate">Sign in (top right) to see your profile and test history.</div>';
+      content.innerHTML = '<div class="gate">Нэвтэрч ороод Профайл болон Тест түүхээ хараарай.</div>';
     }
   });
 
@@ -110,7 +110,7 @@ a { color: inherit; text-decoration: none; }
             <span class="history-points">+${e.points}</span>
           </div>
         `).join('')
-      : '<div class="empty-note">No tests submitted yet — take a weekly test to start earning points.</div>';
+      : '<div class="empty-note">Одоогоор ямар тест хийгээгүй байна — Weekly challenge хийж оноо цуглуулаарай</div>';
 
     content.innerHTML = `
       <div class="profile-head">
