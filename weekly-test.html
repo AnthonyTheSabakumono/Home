@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Test — AnthonyTheSabakumono</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A; --surface: #111111; --surface2: #161616; --surface3: #1E1E1E;
+  --border: #242424; --border-hi: #2E2E2E;
+  --gold: #C9A84C; --gold-b: #E8C96A; --gold-dim: #7A5E28;
+  --gold-glow: rgba(201,168,76,0.10);
+  --text: #F0EDE4; --text-dim: #6E6A62; --text-mid: #9A9590;
+  --radius: 8px; --radius-sm: 5px;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+.site-header {
+  position: sticky; top: 0; z-index: 100; height: 52px;
+  background: rgba(10,10,10,0.96); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 32px; gap: 16px;
+}
+.brand { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.auth-btn {
+  display: flex; align-items: center; gap: 7px; font-size: 11px; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--bg); background: var(--gold);
+  border: 1px solid var(--gold); border-radius: var(--radius-sm); padding: 6px 13px; cursor: pointer;
+}
+.auth-btn:hover { background: var(--gold-b); }
+.user-chip { display: none; align-items: center; gap: 9px; border: 1px solid var(--border-hi); border-radius: 20px; padding: 4px 12px 4px 4px; cursor: pointer; position: relative; }
+.user-avatar { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--border-hi); object-fit: cover; }
+.user-name-chip { font-family: 'DM Mono', monospace; font-size: 11px; }
+.user-menu { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--surface2); border: 1px solid var(--border-hi); border-radius: var(--radius-sm); min-width: 140px; overflow: hidden; }
+.user-chip.open .user-menu { display: block; }
+.user-menu button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-mid); font-family: 'DM Mono', monospace; font-size: 11px; padding: 10px 14px; cursor: pointer; }
+.user-menu button:hover { background: var(--surface3); color: var(--gold); }
+
+.wrap { max-width: 720px; margin: 0 auto; padding: 48px 32px 80px; }
+.test-title { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 8px; }
+.test-sub { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); margin-bottom: 28px; }
+.video-wrap { position: relative; padding-top: 56.25%; border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; border: 1px solid var(--border); }
+.video-wrap iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:0; }
+
+.gate {
+  background: var(--surface); border: 1px solid var(--border-hi); border-radius: var(--radius);
+  padding: 32px; text-align: center; font-family: 'DM Mono', monospace; color: var(--text-mid);
+}
+
+.q-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+.q-num { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 9px 0; cursor: pointer; }
+.opt input { accent-color: var(--gold); }
+
+.submit-btn {
+  display: block; width: 100%; margin-top: 20px;
+  background: var(--gold); color: var(--bg); border: none; border-radius: var(--radius-sm);
+  font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 14px; cursor: pointer;
+}
+.submit-btn:hover { background: var(--gold-b); }
+.submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.result-box {
+  background: var(--surface2); border: 1px solid var(--gold-dim); border-radius: var(--radius);
+  padding: 28px; text-align: center;
+}
+.result-score { font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--gold); }
+.result-note { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); margin-top: 8px; }
+.error-note { color: #C97A6A; font-family: 'DM Mono', monospace; font-size: 12px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="brand">AnthonyTheSabakumono</span>
+  <div class="header-right">
+    <button id="auth-btn" class="auth-btn">Sign In</button>
+    <div id="user-chip" class="user-chip" onclick="this.classList.toggle('open')">
+      <img id="user-avatar" class="user-avatar" src="" alt="">
+      <span id="user-name" class="user-name-chip"></span>
+      <div class="user-menu">
+        <button onclick="event.stopPropagation(); location.href='profile.html'">My Profile</button>
+        <button onclick="event.stopPropagation(); location.href='leaderboard.html'">Leaderboard</button>
+        <button onclick="event.stopPropagation(); signOutUser()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="content">
+    <div class="gate">Loading test…</div>
+  </div>
+</div>
+
+<script type="module">
+  import { auth, db } from './firebase-setup.js';
+  import {
+    doc, getDoc, setDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+  // Reads ?test=weekly-01 from the URL. Every weekly test uses this same
+  // page — you never create a new HTML file per test, only a new Firestore
+  // doc (see instructions below) plus a link like weekly-test.html?test=weekly-01.
+  const params = new URLSearchParams(window.location.search);
+  const testId = params.get('test');
+  const content = document.getElementById('content');
+
+  if (!testId) {
+    content.innerHTML = '<div class="gate">No test specified. Use a link like weekly-test.html?test=weekly-01.</div>';
+  } else {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadTest(user);
+      } else {
+        content.innerHTML = '<div class="gate">Sign in (top right) to take this week\'s test and appear on the leaderboard.</div>';
+      }
+    });
+  }
+
+  async function loadTest(user) {
+    content.innerHTML = '<div class="gate">Loading test…</div>';
+
+    const testSnap = await getDoc(doc(db, 'tests', testId));
+    if (!testSnap.exists()) {
+      content.innerHTML = '<div class="gate">Test not found. Check the link.</div>';
+      return;
+    }
+    const test = testSnap.data();
+
+    // Already submitted? Show their result instead of the form —
+    // this also relies on the security rules blocking a second write.
+    const subSnap = await getDoc(doc(db, 'submissions', testId, 'entries', user.uid));
+    if (subSnap.exists()) {
+      const data = subSnap.data();
+      content.innerHTML = `
+        <h1 class="test-title">${test.title}</h1>
+        <div class="result-box">
+          <div class="result-score">${data.score} / ${test.maxScore}</div>
+          <div class="result-note">You've already submitted this test.</div>
+        </div>`;
+      return;
+    }
+
+    const videoEmbed = test.videoId
+      ? `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${test.videoId}" allowfullscreen></iframe></div>`
+      : '';
+
+    const questionsHtml = test.questions.map(q => `
+      <div class="q-block">
+        <div class="q-num">Question ${q.number}</div>
+        ${q.options.map((opt, i) => `
+          <label class="opt">
+            <input type="radio" name="q${q.number}" value="${i}">
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+    `).join('');
+
+    content.innerHTML = `
+      <h1 class="test-title">${test.title}</h1>
+      <div class="test-sub">${test.questions.length} questions · watch the video to know what's being asked</div>
+      ${videoEmbed}
+      <form id="test-form">
+        ${questionsHtml}
+        <button type="submit" class="submit-btn">Submit Answers</button>
+        <div id="submit-error" class="error-note"></div>
+      </form>
+    `;
+
+    document.getElementById('test-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitTest(user, test);
+    });
+  }
+
+  async function submitTest(user, test) {
+    const form = document.getElementById('test-form');
+    const submitBtn = form.querySelector('.submit-btn');
+    const errorNote = document.getElementById('submit-error');
+    submitBtn.disabled = true;
+    errorNote.textContent = '';
+
+    // Build the answers object and grade against correctIndex, which
+    // came down in the same test document (see the note on cheating
+    // exposure in the build plan — this is the accepted tradeoff).
+    const answers = {};
+    let score = 0;
+    const pointsPerQuestion = test.maxScore / test.questions.length;
+
+    test.questions.forEach(q => {
+      const picked = form.querySelector(`input[name="q${q.number}"]:checked`);
+      const pickedIndex = picked ? parseInt(picked.value, 10) : -1;
+      answers[q.number] = pickedIndex;
+      if (pickedIndex === q.correctIndex) score += pointsPerQuestion;
+    });
+    score = Math.round(score);
+
+    try {
+      // Write 1: the submission itself. Fails on its own if this uid
+      // already has a submission doc for this test — no extra check needed.
+      await setDoc(doc(db, 'submissions', testId, 'entries', user.uid), {
+        answers,
+        score,
+        submittedAt: serverTimestamp()
+      });
+
+      // Write 2: the points ledger entry. Deterministic ID means a repeat
+      // attempt fails the same way.
+      await setDoc(doc(db, 'pointsLedger', `${testId}_${user.uid}`), {
+        uid: user.uid,
+        source: 'test',
+        refId: testId,
+        points: score,
+        timestamp: serverTimestamp()
+      });
+
+      content.innerHTML = `
+        <h1 class="test-title">${test.title}</h1>
+        <div class="result-box">
+          <div class="result-score">${score} / ${test.maxScore}</div>
+          <div class="result-note">Submitted! Check the leaderboard to see where you land.</div>
+        </div>`;
+    } catch (err) {
+      console.error(err);
+      submitBtn.disabled = false;
+      errorNote.textContent = "Couldn't submit — you may have already answered this test.";
+    }
+  }
+</script>
+<script type="module" src="firebase-setup.js"></script>
+</body>
+</html>
